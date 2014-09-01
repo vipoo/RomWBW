@@ -3,5 +3,6 @@
 setlocal
 
 echo Building Apps...
-cd Apps
+pushd Apps\Source
 call Build.cmd
+popd

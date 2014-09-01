@@ -97,15 +97,8 @@ DOBOOT:
 ;	XOR	A
 ;	OUT	(MPCL_ROM),A
 ;	OUT	(MPCL_RAM),A
-;#ENDIF
-#IF (PLATFORM == PLT_UNA)
-	LD	BC,$01FB		; UNA FUNC = SET BANK
-	LD	DE,$0000		; ROM BANK 0
-	CALL	$FFFD			; DO IT (RST 08 NOT SAFE HERE)
-#ELSE
-	LD	A,BID_BOOT
-	CALL	PGSEL
-#ENDIF
+;#ENDIF	
+	CALL	ROMPGZ
 	; JUMP TO RESTART ADDRESS
 	JP	0000H
 ;
@@ -569,10 +562,10 @@ UART_ENTRY:
 ; D XXXXH YYYYH  DUMP MEMORY FROM XXXX TO YYYY
 ; F XXXXH YYYYH ZZH FILL MEMORY FROM XXXX TO YYYY WITH ZZ
 ; H LOAD INTEL HEX FORMAT DATA
-; IXX INPUT FROM PORT XX AND SHOW HEX DATA
+; I INPUT FROM PORT AND SHOW HEX DATA
 ; K ECHO KEYBOARD INPUT
 ; M XXXXH YYYYH ZZZZH MOVE MEMORY BLOCK XXXX TO YYYY TO ZZZZ
-; OXX YY OUTPUT TO PORT XX HEX DATA YY
+; O OUTPUT TO PORT HEX DATA
 ; P XXXXH YYH PROGRAM RAM FROM XXXXH WITH VALUE IN YYH, WILL PROMPT FOR NEXT LINES FOLLOWING UNTIL CR
 ; R RUN A PROGRAM FROM CURRENT LOCATION
 ;
@@ -609,7 +602,7 @@ SERIALCMDLOOP:
 	CP	'M'			; IS IT A "M" (Y/N)
 	JP	Z,MOVE			; MOVE MEMORY COMMAND
 	CP	'F'			; IS IT A "F" (Y/N)
-	JP	Z,FILLMEM		; FILL MEMORY COMMAND
+	JP	Z,FILL			; FILL MEMORY COMMAND
 	LD	HL,TXT_COMMAND		; POINT AT ERROR TEXT
 	CALL	MSG			; PRINT COMMAND LABEL
 
@@ -1169,12 +1162,12 @@ MOVE_LOOP:
 	JP	NZ,MOVE_LOOP		; TIL COUNT=0
 	RET				;
                
-;__FILLMEM____________________________________________________________________
+;__FILL_______________________________________________________________________
 ;
 ;	FILL MEMORY, USER OPTION "M"
 ;_____________________________________________________________________________
 ;
-FILLMEM:
+FILL:
 	LD	C,03			;
 					; START GETNM REPLACEMENT
 					; GET FILL STARTING MEMORY LOCATION
@@ -1244,6 +1237,28 @@ GOCPM:
 
 	JP	CPM_ENT
 ;
+;__FILL_MEM___________________________________________________________________
+;
+;	FUNCTION	: FILL MEMORY WITH A VALUE
+;	INPUT		: HL = START ADDRESS BLOCK
+;			: BC = LENGTH OF BLOCK
+;			: A = VALUE TO FILL WITH
+;	USES		: DE, BC
+;	OUTPUT		:
+;	CALLS		: 
+;	TESTED		: 13 FEB 2007
+;_____________________________________________________________________________
+;
+FILL_MEM:
+	LD	E,L			;
+	LD	D,H			;
+	INC	DE			;
+	LD	(HL),A			; INITIALISE FIRST BYTE OF BLOCK WITH DATA BYTE IN A
+	DEC	BC			;
+	LDIR				; FILL MEMORY
+	RET				; RETURN TO CALLER
+
+;
 ;__INITIALIZE_________________________________________________________________
 ;
 ;	INITIALIZE SYSTEM
@@ -1256,7 +1271,7 @@ INITIALIZE:
 
 ;__MTERM_INIT_________________________________________________________________
 ;
-;  SETUP 8255, MODE 0, PORT A=OUT, PORT B=IN, PORT C=OUT/OUT
+;  SETUP 8255, MODE 0, PORT A=OUT, PORT B=IN, PORT C=OUT/OUT 
 ;     
 ;_____________________________________________________________________________
 MTERM_INIT:

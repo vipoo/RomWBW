@@ -7,31 +7,12 @@ call Clean.cmd
 popd
 
 echo Cleaning Apps...
-pushd Apps
+pushd Apps\Source
 call Clean.cmd
 popd
-
-echo Cleaning CPM22...
-pushd CPM22
-call Clean.cmd
-popd
-
-echo Cleaning ZCPR...
-pushd ZCPR
-call Clean.cmd
-popd
-
-echo Cleaning ZCPR-DJ...
-pushd ZCPR-DJ
-call Clean.cmd
-popd
-
-if exist *.img del *.img /Q
-if exist debug.log del debug.log
 
 choice /m "Clean Output directories?"
 if errorlevel 2 goto :eof
-echo Cleaning Output directories...
+echo Cleaning Output...
 if exist Output\*.* del Output\*.* /Q
-if exist OutputUNA\*.* del OutputUNA\*.* /Q
-if exist OutputUNALOAD\*.* del OutputUNALOAD\*.* /Q
+if exist Apps\Output\*.* del Apps\Output\*.* /Q
