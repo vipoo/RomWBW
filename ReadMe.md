@@ -1,4 +1,11 @@
+___
+### The `dev` branch is deprecated as of RomWBW v3.4.
 
+All Pull Requests
+should now target the `master` branch.  See the `CONTRIBUTING` document
+in the root of the `master` branch.  The `dev` branch will be deleted
+in the future.
+___
 
 **RomWBW ReadMe** \
 Version 3.4 \
